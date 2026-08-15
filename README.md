@@ -1,36 +1,37 @@
 # berry-debian
 
-This repository contains the source to build a Debian package for [berry](https://github.com/JLErvin/berry).
+Debian packaging for [berry](https://github.com/JLErvin/berry),
+published to the [pkg.haus](https://pkg.haus) APT archive.
 
-## Usage
+## Install
 
-If you have [Docker](https://www.docker.com/) installed locally, just run the following:
-
-```bash
-user@hostname$ ./build.sh
-```
-By default this will build berry 0.1.13 on Debian Bookworm.
-
-If you want to customize the build at runtime, use the following:
+Follow the installation instructions on [pkg.haus](https://pkg.haus), then run:
 
 ```bash
-user@hostname$ ./build.sh -i debian:unstable-slim -v 0.1.9
+sudo apt install berry
 ```
-Don't forget to update `debian/changelog` so your package is generated with the correct version.
+
+## Building locally
+
+```bash
+docker run --rm -v "$PWD:/target" -w /target ghcr.io/pkghaus/deb-builder:trixie
+```
+
+Packages land in `debs/`. Build for another suite by swapping the image
+tag (`testing` or `unstable`).
 
 ## Release
 
-To publish a new package version to Github, follow these steps:
-  * update the `VERSION` variable in `build.sh`
-  * add a new entry in `debian/changelog`
-  * create a new tag with the Debian package version
+* add a new entry in `debian/changelog`
+* update `VERSION` in `package.conf` to the upstream tag
+* create a tag matching the Debian package version (`vX.Y.Z-N`) - CI
+  validates the build on every suite and architecture; the pkg.haus
+  archive ingest builds and publishes it
 
 ## License
 
 ```
-MIT License
-
-Copyright (c) 2020-2025, Martin Simon
+Copyright (c) 2020-2026, pkg.haus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +50,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 ```
 
 ## Buy me a coffee?

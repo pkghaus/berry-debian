@@ -1,12 +1,13 @@
 Source: berry
 Section: x11
-Priority: extra
-Maintainer: Martin Simon <martin@simon.tf>
+Priority: optional
+Maintainer: pkg.haus archive <archive@pkg.haus>
 Build-Depends:
- debhelper (>= 12),
+ debhelper-compat (= 13),
  libx11-dev,
  libxft-dev,
  libxinerama-dev
+Rules-Requires-Root: no
 Standards-Version: 4.5.1
 Homepage: https://github.com/JLErvin/berry
 
@@ -15,4 +16,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: sxhkd
 Provides: x-window-manager
-Description: A healthy, bite-sized window manager written in C.
+Description: healthy, bite-sized window manager
+ berry is a small window manager for X11, written in C. Windows are
+ managed at runtime through its berryc client; the package ships example
+ sxhkd bindings and an autostart script.

@@ -14,3 +14,9 @@ override_dh_installexamples:
 
 override_dh_compress:
 	dh_compress -Xexamples
+
+# Upstream ships the sxhkdrc example with an executable bit; it is a
+# config file, not a script.
+override_dh_fixperms:
+	dh_fixperms
+	chmod 0644 debian/berry/usr/share/doc/berry/examples/sxhkdrc

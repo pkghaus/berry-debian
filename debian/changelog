@@ -1,3 +1,11 @@
+berry (0.1.13-2) unstable; urgency=medium
+
+  * Migrate to the pkghaus build pipeline
+  * Priority optional; extra is deprecated
+  * Give the package a proper synopsis and description
+
+ -- pkg.haus archive <archive@pkg.haus>  Sat, 15 Aug 2026 10:15:02 +0200
+
 berry (0.1.13-1) unstable; urgency=medium
 
   * New upstream release
