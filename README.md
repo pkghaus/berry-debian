@@ -52,9 +52,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-## Buy me a coffee?
+## Buy us a coffee?
 
-If you feel like buying me a coffee (or a beer?), donations are welcome:
+If you feel like buying us a coffee (or a beer?), donations are welcome:
 
 ```
 BTC : bc1qq04jnuqqavpccfptmddqjkg7cuspy3new4sxq9
