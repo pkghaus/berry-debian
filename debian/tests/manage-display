@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# berry is a window manager. It prints nothing useful, has no batch mode, and
+# never exits on its own, so the only honest proof that the packaged binary
+# works is to put it in front of a display and ask the display whether a
+# window manager took over.
+#
+# EWMH specifies that handshake, which is what makes it checkable without a
+# human looking at a screen. A compliant WM creates a window, points the root
+# window's _NET_SUPPORTING_WM_CHECK at it, and sets _NET_WM_NAME on that
+# window to its own name. Both halves are asserted here: the root property on
+# its own only says something claimed the display, and the name is what
+# distinguishes berry from any other WM that might be installed.
+#
+# Xvfb because a testbed has no display. xauth is not a dependency of xvfb and
+# has to be declared, or xvfb-run fails setting up its cookie -- this is why
+# Debian's own xterm and scrot tests list it explicitly.
+#
+# The re-exec is how the whole test gets a display: xvfb-run takes one command,
+# and this test needs a server that outlives several of them.
+
+set -euo pipefail
+
+if [ "${DEP8_UNDER_XVFB:-}" != 1 ]; then
+    export DEP8_UNDER_XVFB=1
+    exec xvfb-run -a --server-args="-screen 0 1024x768x24" "$0" "$@"
+fi
+
+WORK="${AUTOPKGTEST_TMP:-$(mktemp -d)}"
+cd "$WORK"
+
+wm_pid=""
+cleanup() { [ -n "$wm_pid" ] && kill "$wm_pid" 2>/dev/null; return 0; }
+trap cleanup EXIT
+
+# berry runs ~/.config/berry/autostart at startup and complains on stderr when
+# it is absent. Providing an empty one keeps the run quiet and proves the
+# autostart path is read rather than merely tolerated.
+mkdir -p "$WORK/.config/berry"
+: > "$WORK/.config/berry/autostart"
+chmod +x "$WORK/.config/berry/autostart"
+export HOME="$WORK"
+
+berry &
+wm_pid=$!
+
+# Poll rather than sleep a guess: the property appears as soon as berry has
+# claimed the root window, and a fixed sleep is either slower than needed or
+# too short on a loaded builder.
+check=""
+for _ in $(seq 60); do
+    check="$(xprop -root _NET_SUPPORTING_WM_CHECK 2>/dev/null || true)"
+    case "$check" in
+        *"window id # "*) break ;;
+    esac
+    check=""
+    sleep 0.5
+done
+
+if [ -z "$check" ]; then
+    echo "berry set no _NET_SUPPORTING_WM_CHECK on the root window" >&2
+    exit 1
+fi
+
+if ! kill -0 "$wm_pid" 2>/dev/null; then
+    echo "berry exited instead of managing the display" >&2
+    exit 1
+fi
+
+win="$(printf '%s\n' "$check" | grep -oE '0x[0-9a-f]+' | head -1)"
+if [ -z "$win" ]; then
+    echo "could not read the check window id from [$check]" >&2
+    exit 1
+fi
+
+name="$(xprop -id "$win" _NET_WM_NAME 2>/dev/null || true)"
+case "$name" in
+    *'"berry"'*) ;;
+    *) echo "the check window names [$name], expected berry" >&2
+       exit 1 ;;
+esac
+
+echo "berry managed a 1024x768 display; _NET_WM_NAME on $win is berry"

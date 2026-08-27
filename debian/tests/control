@@ -1,0 +1,3 @@
+Tests: manage-display
+Depends: berry, xvfb, xauth, x11-utils
+Restrictions: allow-stderr
